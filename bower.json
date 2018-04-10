@@ -1,0 +1,27 @@
+{
+  "name": "crypto-component",
+  "authors": [
+    "MoyArt"
+  ],
+  "description": "A Dashboard cryptoprice component that you can add to your project.",
+  "main": "",
+  "keywords": [
+    "cryptocurrency",
+    "dashboard",
+    "etherium",
+    "bitcoin",
+    "Polymer"
+  ],
+  "license": "MIT",
+  "homepage": "http://www.moyart.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0"
+  }
+}
