@@ -4,6 +4,10 @@
     <template>
         <h2>Wellcome to Cryptocurrency Dashboard</h2>
         <iron-ajax id="coinbase" handle-as="json" on-response="_handleResponse"></iron-ajax>
+        <template is="dom-repeat" items="[[currencies]]">
+            <p>[[item.code]] - [[item.name]] - [[item.price]]</p>
+        </template>
+
     </template>
     <script>
         class CryptopriceDash extends Polymer.Element {
@@ -15,17 +19,25 @@
                         value: [
                             {
                                 code: 'BTC',
-                                name: 'Bitcoin'
+                                name: 'Bitcoin',
+                                price: 0
                             },
                             {
                                 code: 'ETH',
-                                name: 'Ethereum'
+                                name: 'Ethereum',
+                                price: 0
                             },
                             {
                                 code: 'LTC',
-                                name: 'Litecoin'
+                                name: 'Litecoin',
+                                price:0
                             }
                         ]
+                    },
+                    loading: {
+                        type: Boolean,
+                        notify: true,
+                        value: false
                     }
                 }
             }
@@ -48,9 +60,18 @@
                 }, this)
             }
             _handleResponse(response) {
+                this._computedCurrencyPrice(response.detail);
+            }
+            _computedCurrencyPrice(data){
                 debugger
-                console.log(response);
-                debugger
+                var code = data.url.substring(35, 38);
+                console.log(code);
+                var index = this.currencies.map((e)=>{
+                    console.log("El resultado de mi map es: " + e.code);
+                    return e.code;
+                }).indexOf(code);
+                console.log("Mi index es: " + index);
+                this.set('currencies.' + index + '.price', data.response.data.amount);
             }
         }
 
