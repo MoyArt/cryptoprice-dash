@@ -1,15 +1,53 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 <dom-module id="cryptoprice-dash">
     <template>
         <h2>Wellcome to Cryptocurrency Dashboard</h2>
+        <iron-ajax id="coinbase" handle-as="json" on-response="_handleResponse"></iron-ajax>
     </template>
     <script>
-        class CryptopriceDash extends Polymer.Element{
-            static get is(){ return 'cryptoprice-dash'}
+        class CryptopriceDash extends Polymer.Element {
+            static get is() { return 'cryptoprice-dash' }
+            static get properties() {
+                return {
+                    currencies: {
+                        type: Array,
+                        value: [
+                            {
+                                code: 'BTC',
+                                name: 'Bitcoin'
+                            }
+                        ]
+                    }
+                }
+            }
+            ready() {
+                super.ready();
+                Polymer.RenderStatus.afterNextRender(this, function () {
+                    this._getCurrencyData();
+                })
+            }
+            _getCurrencyData() {
+                var ajax = this.$.coinbase;
+                console.log(ajax);
+                var currencies = this.currencies;
+                console.log(currencies)
+                currencies.forEach(function (element) {
+                    debugger
+                    ajax.url = 'https://api.coinbase.com/v2/prices/' + element.code + '-USD/spot';
+                    console.log('La url es: ' + ajax.url);
+                    ajax.generateRequest();
+                }, this)
+            }
+            _handleResponse(response) {
+                debugger
+                console.log(response);
+                debugger
+            }
         }
 
         window.customElements.define(CryptopriceDash.is, CryptopriceDash);
 
     </script>
-    
+
 </dom-module>
