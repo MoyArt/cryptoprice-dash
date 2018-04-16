@@ -1,6 +1,7 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="bower_components/paper-spinner/paper-spinner-lite.html">
+<script src="bower_components/chart.js/dist/Chart.js"></script>
 <dom-module id="cryptoprice-dash">
     <template>
         <h2>Wellcome to Cryptocurrency Dashboard</h2>
@@ -11,6 +12,10 @@
                 <p>[[item.code]] - [[item.name]] - [[item.price]]</p>
             </template>
         </div>
+        <div hidden$="[[loading]]" >
+            <canvas height="2" width="4" id="canvas"></canvas>
+        </div>
+
     </template>
     <script>
         class CryptopriceDash extends Polymer.Element {
@@ -33,7 +38,7 @@
                             {
                                 code: 'LTC',
                                 name: 'Litecoin',
-                                price:0
+                                price: 0
                             }
                         ]
                     },
@@ -48,8 +53,20 @@
                 super.ready();
                 Polymer.RenderStatus.afterNextRender(this, function () {
                     this._getCurrencyData();
+                    this._getHistoricCurrencyData(this.currencies[0].code);
                 })
-            }
+            };
+            /*
+                We get historic currency data
+            */
+            _getHistoricCurrencyData(currency) {
+                var ajax = this.$.coinbase;
+                ajax.url = 'https://api.coinbase.com/v2/prices/' + currency + '-USD/historic?period=week';
+                ajax.generateRequest();
+            };
+            /*
+                We get spot currency data
+            */
             _getCurrencyData() {
                 var ajax = this.$.coinbase;
                 console.log(ajax);
@@ -61,21 +78,29 @@
                     console.log('La url es: ' + ajax.url);
                     ajax.generateRequest();
                 }, this)
-            }
+            };
             _handleResponse(response) {
-                this._computedCurrencyPrice(response.detail);
-            }
-            _computedCurrencyPrice(data){
+                if(response.detail.response.data.amount != null){
+                    console.log("This is spot data")
+                    this._computedCurrencyPrice(response.detail);
+                }else{
+                    console.log("This is historic data")
+                    this._computeGraph(response.detail);
+                }
+                
+            };
+            _computedCurrencyPrice(data) {
                 debugger
                 var code = data.url.substring(35, 38);
                 console.log(code);
-                var index = this.currencies.map((e)=>{
+                var index = this.currencies.map((e) => {
                     console.log("El resultado de mi map es: " + e.code);
                     return e.code;
                 }).indexOf(code);
                 console.log("Mi index es: " + index);
                 this.set('currencies.' + index + '.price', data.response.data.amount);
             }
+            _computeGraph(){}
         }
 
         window.customElements.define(CryptopriceDash.is, CryptopriceDash);
