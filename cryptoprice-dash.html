@@ -12,7 +12,7 @@
                 <p>[[item.code]] - [[item.name]] - [[item.price]]</p>
             </template>
         </div>
-        <div hidden$="[[loading]]" >
+        <div hidden$="[[loading]]" style="width: 100%; max-width: 700px; margin: 20px auto;">
             <canvas height="2" width="4" id="canvas"></canvas>
         </div>
 
@@ -46,6 +46,9 @@
                         type: Boolean,
                         notify: true,
                         value: false
+                    },
+                    myLineChart: {
+
                     }
                 }
             }
@@ -100,7 +103,12 @@
                 console.log("Mi index es: " + index);
                 this.set('currencies.' + index + '.price', data.response.data.amount);
             }
-            _computeGraph(){}
+            _computeGraph(){
+                var code = data.url.substring(35, 38);
+                var label = [];
+                var price = [];
+                
+            }
         }
 
         window.customElements.define(CryptopriceDash.is, CryptopriceDash);
