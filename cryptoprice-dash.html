@@ -8,7 +8,7 @@
 <script src="bower_components/moment/min/moment.min.js"></script>
 <dom-module id="cryptoprice-dash">
     <template>
-        <h2>Wellcome to Cryptocurrency Dashboard</h2>
+        <h2>Weekly Cryptocurrency Dashboard</h2>
         <iron-ajax id="coinbase" handle-as="json" on-response="_handleResponse" loading="{{loading}}"></iron-ajax>
         <paper-spinner-lite active="[[loading]]" alt="Cargando"></paper-spinner-lite>
         <div hidden$="[[loading]]">
