@@ -1,7 +1,11 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/paper-styles/paper-styles.html">
 <script src="bower_components/chart.js/dist/Chart.js"></script>
+<script src="bower_components/moment/min/moment.min.js"></script>
 <dom-module id="cryptoprice-dash">
     <template>
         <h2>Wellcome to Cryptocurrency Dashboard</h2>
@@ -9,7 +13,9 @@
         <paper-spinner-lite active="[[loading]]" alt="Cargando"></paper-spinner-lite>
         <div hidden$="[[loading]]">
             <template is="dom-repeat" items="[[currencies]]">
-                <p>[[item.code]] - [[item.name]] - [[item.price]]</p>
+                <paper-button on-click="_getHistoricCurrencyData" data-item$="[[item.code]]">
+                    [[item.name]] - [[item.price]]
+                </paper-button>
             </template>
         </div>
         <div hidden$="[[loading]]" style="width: 100%; max-width: 700px; margin: 20px auto;">
@@ -47,9 +53,7 @@
                         notify: true,
                         value: false
                     },
-                    myLineChart: {
-
-                    }
+                    myLineChart: {}
                 }
             }
             ready() {
@@ -62,7 +66,13 @@
             /*
                 We get historic currency data
             */
+            _handleClick(e){
+                console.log(e.target.dataset.item)
+            }
             _getHistoricCurrencyData(currency) {
+                if(currency !== undefined){
+                    currency = currency.target.dataset.item;
+                }
                 var ajax = this.$.coinbase;
                 ajax.url = 'https://api.coinbase.com/v2/prices/' + currency + '-USD/historic?period=week';
                 ajax.generateRequest();
@@ -72,13 +82,9 @@
             */
             _getCurrencyData() {
                 var ajax = this.$.coinbase;
-                console.log(ajax);
                 var currencies = this.currencies;
-                console.log(currencies)
                 currencies.forEach(function (element) {
-                    debugger
                     ajax.url = 'https://api.coinbase.com/v2/prices/' + element.code + '-USD/spot';
-                    console.log('La url es: ' + ajax.url);
                     ajax.generateRequest();
                 }, this)
             };
@@ -103,11 +109,66 @@
                 console.log("Mi index es: " + index);
                 this.set('currencies.' + index + '.price', data.response.data.amount);
             }
-            _computeGraph(){
+            _computeGraph(data){
+                console.log(data)
+                debugger
                 var code = data.url.substring(35, 38);
                 var label = [];
                 var price = [];
+                data.response.data.prices.map((e)=>{
+                    label.push(this._computeDateTime(e.time));
+                    price.push(e.price);
+                });
+                this._generateLineChart(label, price, code);
+            }
+            _computeDateTime(datestring){
+                if(datestring){
+                    return moment(datestring, "YYYY-MM-DDThh:mm:aaZ").format('M/DD/YYYY h:mm a');
+                }
+            }
+            _generateLineChart(label, price, labelName){
+                if(this.myLineChart !== undefined) this.myLineChart.destroy();
+               var ctx = this.$.canvas.getContext('2d');
+               this.myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: label.reverse(),
+                    datasets:[
+                        {
+                            pointRadius: 0,
+                            label: labelName,
+                            backgroundColor: "rgba(111, 124, 186, 0.1)",
+                            borderColor: "rgba(111, 124, 186, 1)",
+                            borderWidth: 2,
+                            data: price.reverse() 
+                        }
+                    ]  
+                },
+                options: {
+                    animation: false,
+                    tooltips:{
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        xAxes:[
+                            {
+                                gridlines:{
+                                    display: false
+                                }
+                            }
+                        ],
+                        yAxes: [
+                            {
+                                gridlines: {
+                                    display: false
+                                }
+                            }
+                        ]
+                    }
+                }
                 
+               });
             }
         }
 
