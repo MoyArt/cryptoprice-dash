@@ -7,6 +7,7 @@
 <script src="bower_components/chart.js/dist/Chart.js"></script>
 <script src="bower_components/moment/min/moment.min.js"></script>
 <dom-module id="cryptoprice-dash">
+
     <template>
         <h2>Weekly Cryptocurrency Dashboard</h2>
         <iron-ajax id="coinbase" handle-as="json" on-response="_handleResponse" loading="{{loading}}"></iron-ajax>
@@ -21,8 +22,8 @@
         <div hidden$="[[loading]]" style="width: 100%; max-width: 700px; margin: 20px auto;">
             <canvas height="2" width="4" id="canvas"></canvas>
         </div>
-
     </template>
+
     <script>
         class CryptopriceDash extends Polymer.Element {
             static get is() { return 'cryptoprice-dash' }
@@ -70,7 +71,7 @@
                 if (currency !== undefined) {
                     currency = currency.target.dataset.item;
                 }
-                var ajax = this.$.coinbase;
+                let ajax = this.$.coinbase;
                 ajax.url = 'https://api.coinbase.com/v2/prices/' + currency + '-USD/historic?period=week';
                 ajax.generateRequest();
             };
@@ -78,8 +79,8 @@
                 We get spot currency data
             */
             _getCurrencyData() {
-                var ajax = this.$.coinbase;
-                var currencies = this.currencies;
+                let ajax = this.$.coinbase;
+                let currencies = this.currencies;
                 currencies.forEach(function (element) {
                     ajax.url = 'https://api.coinbase.com/v2/prices/' + element.code + '-USD/spot';
                     ajax.generateRequest();
@@ -90,10 +91,8 @@
             */
             _handleResponse(response) {
                 if (response.detail.response.data.amount != null) {
-                    console.log("This is spot data")
                     this._computedCurrencyPrice(response.detail);
                 } else {
-                    console.log("This is historic data")
                     this._computeGraph(response.detail);
                 }
 
@@ -102,25 +101,19 @@
                 This metod gets the currency price data
             */
             _computedCurrencyPrice(data) {
-                debugger
-                var code = data.url.substring(35, 38);
-                console.log(code);
-                var index = this.currencies.map((e) => {
-                    console.log("El resultado de mi map es: " + e.code);
+                let code = data.url.substring(35, 38);
+                let index = this.currencies.map((e) => {
                     return e.code;
                 }).indexOf(code);
-                console.log("Mi index es: " + index);
                 this.set('currencies.' + index + '.price', data.response.data.amount);
             }
             /*
                 This method gets the data and puts it in _generateLineChart method
             */
             _computeGraph(data) {
-                console.log(data)
-                debugger
-                var code = data.url.substring(35, 38);
-                var label = [];
-                var price = [];
+                let code = data.url.substring(35, 38);
+                let label = [];
+                let price = [];
                 data.response.data.prices.map((e) => {
                     label.push(this._computeDateTime(e.time));
                     price.push(e.price);
@@ -140,7 +133,7 @@
             */
             _generateLineChart(label, price, labelName) {
                 if (this.myLineChart !== undefined) this.myLineChart.destroy();
-                var ctx = this.$.canvas.getContext('2d');
+                let ctx = this.$.canvas.getContext('2d');
                 this.myLineChart = new Chart(ctx, {
                     type: 'line',
                     data: {
